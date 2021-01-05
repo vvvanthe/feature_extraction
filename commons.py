@@ -7,19 +7,20 @@ def resize_frame(image, target_height, target_width):
         image = np.tile(image[:, :, None], 3)
     elif len(image.shape) == 4:
         image = image[:, :, :, 0]
-
+    #target_height=int(target_height/3)#new for resize
+    #target_width=int(target_width/3)# new for resize
     height, width, channels = image.shape
     if height == width:
-        resized_image = cv2.resize(image, (target_height, target_width))
+        resized_image = cv2.resize(image, (target_height, target_width))#,interpolation = cv2.INTER_LANCZOS4)
     elif height < width:
         resized_image = cv2.resize(image, (int(width * target_height / height),
-                                           target_width))
+                                           target_width))#,interpolation = cv2.INTER_LANCZOS4)
         cropping_length = int((resized_image.shape[1] - target_height) / 2)
         resized_image = resized_image[:,
                                       cropping_length:resized_image.shape[1] - cropping_length]
     else:
         resized_image = cv2.resize(image, (target_height,
-                                           int(height * target_width / width)))
+                                           int(height * target_width / width)))#,interpolation = cv2.INTER_LANCZOS4)
         cropping_length = int((resized_image.shape[0] - target_width) / 2)
         resized_image = resized_image[cropping_length:
                                       resized_image.shape[0] - cropping_length]
@@ -95,6 +96,11 @@ def sample_clips_metafunc(stride):
 def preprocess_frame_metafunc(mean, std, resize_to, crop_to):
     def preprocess_frame(image):
         image = np.asarray(image, dtype=np.float64)
+        #print(image.shape)
+        #frame_size=image.shape
+        #new_h=int(frame_size[0]/2)
+        #new_d=int(frame_size[1]/2)
+        #image = resize_frame(image,new_h,new_d) # resize to reduce quality
         image = resize_frame(image, *resize_to)
         image /= 255.
         image -= np.asarray(mean)
@@ -126,4 +132,3 @@ def preprocess_clip_metafunc(mean, std, resize_to, crop_to):
         return clip
 
     return preprocess_clip
-
